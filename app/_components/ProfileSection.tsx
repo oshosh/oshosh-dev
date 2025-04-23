@@ -1,23 +1,19 @@
-import { Youtube, Github, BookOpen, Instagram } from 'lucide-react';
+import { Github, AppWindow } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ProfileImage } from '@/components/ProfileImage';
+import { Typography } from '@/components/ui/typography';
+
 const socialLinks = [
   {
-    icon: Youtube,
-    href: 'https://www.youtube.com/gymcoding',
+    key: 'osh-velog',
+    icon: AppWindow,
+    href: 'https://velog.io/@oshosh',
   },
   {
+    key: 'osh-github',
     icon: Github,
-    href: 'https://github.com/gymcoding',
-  },
-  {
-    icon: BookOpen,
-    href: 'https://www.inflearn.com/users/432199/@gymcoding',
-  },
-  {
-    icon: Instagram,
-    href: 'https://www.instagram.com/gymcoding',
+    href: 'https://github.com/oshosh',
   },
 ];
 export default function ProfileSection() {
@@ -27,18 +23,24 @@ export default function ProfileSection() {
         <div className="space-y-4">
           <div className="flex justify-center">
             <div className="bg-muted rounded-full p-2">
-              <div className="h-36 w-36 overflow-hidden rounded-full">{/* <ProfileImage /> */}</div>
+              <div className="h-36 w-36 overflow-hidden rounded-full">
+                <ProfileImage />
+              </div>
             </div>
           </div>
 
           <div className="text-center">
-            <h3 className="text-lg font-bold">OSH</h3>
-            <p className="text-primary text-sm">Frontend Developer</p>
+            <Typography variant="h3" as="h3">
+              OSH
+            </Typography>
+            <Typography variant="p" as="p">
+              Frontend Developer
+            </Typography>
           </div>
 
           <div className="flex justify-center gap-2">
             {socialLinks.map((item, index) => (
-              <Button key={index} variant="ghost" className="bg-primary/10" size="icon" asChild>
+              <Button key={item.key} variant="ghost" className="bg-primary/10" size="icon" asChild>
                 <a href={item.href} target="_blank" rel="noopener noreferrer">
                   <item.icon className="h-4 w-4" />
                 </a>
@@ -46,7 +48,9 @@ export default function ProfileSection() {
             ))}
           </div>
 
-          <p className="bg-primary/10 rounded p-2 text-center text-sm">웹 개발자 ✨</p>
+          <Typography variant="small" as="p" className="bg-primary/10 rounded p-2 text-center">
+            웹 개발자 ✨
+          </Typography>
         </div>
       </CardContent>
     </Card>

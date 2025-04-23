@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Typography } from '@/components/ui/typography';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function SortSelect() {
@@ -28,8 +29,12 @@ export default function SortSelect() {
         <SelectValue placeholder="정렬 방식 선택" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="latest">최신순</SelectItem>
-        <SelectItem value="oldest">오래된순</SelectItem>
+        <SelectItem value="latest">
+          <Typography variant="small">최신순</Typography>
+        </SelectItem>
+        <SelectItem value="oldest">
+          <Typography variant="small">오래된순</Typography>
+        </SelectItem>
       </SelectContent>
     </Select>
   );

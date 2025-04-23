@@ -16,12 +16,15 @@ const typographyVariants = cva('', {
       large: 'text-lg font-semibold',
       medium: 'text-base font-semibold',
       small: 'text-sm font-medium leading-none ',
+      xsmall: 'text-xs font-medium leading-none ',
       muted: 'text-sm text-muted-foreground',
     },
     color: {
       default: 'text-primary-text',
       secondary: 'text-primary-text-secondary',
       muted: 'text-muted-foreground',
+      tertiary: 'text-tertiary',
+      tertiaryForeground: 'text-tertiary-foreground',
     },
   },
   defaultVariants: {

@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Typography } from '@/components/ui/typography';
 import { HandshakeIcon } from 'lucide-react';
 
 const contactItems = [
@@ -13,11 +14,14 @@ const contactItems = [
     },
   },
 ];
+
 export default function ContactSection() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>문의하기</CardTitle>
+        <Typography as="p" variant="medium" color="secondary">
+          문의하기
+        </Typography>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
@@ -27,14 +31,18 @@ export default function ContactSection() {
               href={`mailto:${item.mailto.email}?subject=${encodeURIComponent(
                 item.mailto.subject
               )}&body=${encodeURIComponent(item.mailto.body)}`}
-              className="group bg-primary/5 hover:bg-muted flex items-start gap-4 rounded-lg p-3 transition-colors"
+              className="group bg-tertiary hover:bg-muted flex items-center gap-4 rounded-lg p-3 transition-colors"
             >
               <div className="bg-primary/20 text-primary flex shrink-0 items-center justify-center rounded-md p-1.5">
                 <item.icon className="h-4 w-4" />
               </div>
               <div className="flex-1">
-                <h3 className="font-medium">{item.title}</h3>
-                <p className="text-muted-foreground text-xs">{item.description}</p>
+                <Typography as="h3" variant="medium" color="tertiaryForeground">
+                  {item.title}
+                </Typography>
+                <Typography as="p" variant="xsmall" color="muted" className="pt-1">
+                  {item.description}
+                </Typography>
               </div>
             </a>
           ))}
