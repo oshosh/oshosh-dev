@@ -28,6 +28,7 @@ export default async function Home({ searchParams }: HomeProps) {
 
   const tags = getTags();
   const postsPromise = getPublishedPosts({ tag: selectedTag, sort: selectedSort });
+
   return (
     <div className="container py-8">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-[200px_1fr_220px]">

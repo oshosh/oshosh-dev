@@ -4,10 +4,10 @@ import Link from 'next/link';
 import { PostCard } from '@/components/features/blog/PostCard';
 import { Loader2 } from 'lucide-react';
 import { GetPublishedPostsResponse } from '@/lib/notion';
-import { useInfiniteQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, use } from 'react';
 import { useInView } from 'react-intersection-observer';
+import { useGetPostsQuery } from '@/app/(home)/_hooks/useGetPostsQuery';
 
 interface PostListProps {
   postsPromise: Promise<GetPublishedPostsResponse>;
@@ -20,29 +20,11 @@ export default function PostList({ postsPromise }: PostListProps) {
   const sort = searchParams.get('sort');
   const pageSize = 2;
 
-  const fetchPosts = async ({ pageParam }: { pageParam: string | undefined }) => {
-    const params = new URLSearchParams();
-    if (tag) params.set('tag', tag);
-    if (sort) params.set('sort', sort);
-    if (pageParam) params.set('startCursor', pageParam);
-    params.set('pageSize', pageSize.toString());
-
-    const response = await fetch(`/api/posts?${params.toString()}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch posts');
-    }
-    return response.json();
-  };
-
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
-    queryKey: ['posts', tag, sort, pageSize],
-    queryFn: fetchPosts,
-    initialPageParam: undefined,
-    getNextPageParam: (lastPage) => lastPage.nextCursor,
-    initialData: {
-      pages: [initialData],
-      pageParams: [undefined],
-    },
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetPostsQuery({
+    tag: tag || '전체',
+    sort: sort || 'latest',
+    pageSize,
+    initialData,
   });
 
   const { ref, inView } = useInView({

@@ -147,7 +147,7 @@ export const getPublishedPosts = unstable_cache(
       page_size: pageSize,
       start_cursor: startCursor,
     });
-    console.log(response);
+    // console.log('notion getPublishedPosts', response);
 
     const posts = response.results
       .filter((page): page is PageObjectResponse => 'properties' in page)
@@ -213,7 +213,7 @@ export const createPost = async ({ title, tag, content }: CreatePostParams) => {
     },
     properties: {
       Title: {
-        title: [
+        rich_text: [
           {
             text: {
               content: title,
