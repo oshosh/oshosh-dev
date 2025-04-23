@@ -35,7 +35,8 @@
 - **@notionhq/client**: 노션 API 클라이언트
 - **notion-to-md**: 노션 콘텐츠를 마크다운으로 변환
 - **Tanstack React Query**: 서버 상태 관리 및 캐싱
-- **React Hook Form**: 폼 관리 및 유효성 검증
+- ~**React Hook Form**: 폼 관리 및 유효성 검증~
+   - **Next JS Server Action**: React Hook Form 대신 사용 (복잡하지 않기 때문에 Server Action 처리로 변경)
 - **Zod**: 스키마 검증
 
 ## 시작하기
