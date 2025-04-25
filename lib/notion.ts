@@ -12,17 +12,36 @@ export const notion = new Client({
 });
 const n2m = new NotionToMarkdown({ notionClient: notion });
 
+interface FileObject {
+  name: string;
+  type: 'file' | 'external';
+  file?: {
+    url: string;
+    expiry_time?: string;
+  };
+  external?: {
+    url: string;
+  };
+}
+
+interface FilesPropertyValue {
+  type: 'files';
+  files: FileObject[];
+}
+
 function getPostMetadata(page: PageObjectResponse): Post {
   const { properties } = page;
 
-  const getCoverImage = (cover: PageObjectResponse['cover']) => {
+  const getCoverImage = (cover: PageObjectResponse['cover'] | FilesPropertyValue) => {
     if (!cover) return '';
 
+    console.log('cover 진짜 있는지 일단 확인', cover);
     switch (cover.type) {
       case 'external':
         return cover.external.url;
-      case 'file':
-        return cover.file.url;
+      case 'files': {
+        return cover.files[0]?.file?.url;
+      }
       default:
         return '';
     }
@@ -30,12 +49,18 @@ function getPostMetadata(page: PageObjectResponse): Post {
 
   return {
     id: page.id,
-    title: properties.Title.type === 'title' ? (properties.Title.title[0]?.plain_text ?? '') : '',
+    title:
+      properties.Title.type === 'rich_text'
+        ? (properties.Title.rich_text[0]?.plain_text ?? '')
+        : '',
     description:
       properties.Description.type === 'rich_text'
         ? (properties.Description.rich_text[0]?.plain_text ?? '')
         : '',
-    coverImage: getCoverImage(page.cover),
+    coverImage:
+      properties.cover.type === 'files'
+        ? getCoverImage(page.properties.cover as FilesPropertyValue)
+        : '',
     tags:
       properties.Tags.type === 'multi_select'
         ? properties.Tags.multi_select.map((tag) => tag.name)
@@ -147,7 +172,7 @@ export const getPublishedPosts = unstable_cache(
       page_size: pageSize,
       start_cursor: startCursor,
     });
-    // console.log('notion getPublishedPosts', response);
+    // console.log('notion getPublishedPosts', JSON.stringify(response.results[0]));
 
     const posts = response.results
       .filter((page): page is PageObjectResponse => 'properties' in page)

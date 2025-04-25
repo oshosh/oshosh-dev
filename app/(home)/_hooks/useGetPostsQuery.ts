@@ -6,7 +6,7 @@ interface GetPostsProps {
   tag: string;
   sort: string;
   pageSize: number;
-  initialData: Promise<GetPublishedPostsResponse>;
+  initialData: GetPublishedPostsResponse;
 }
 
 export const useGetPostsQuery = ({ tag, sort, pageSize, initialData }: GetPostsProps) => {
@@ -14,7 +14,6 @@ export const useGetPostsQuery = ({ tag, sort, pageSize, initialData }: GetPostsP
     queryKey: ['posts', tag, sort, pageSize],
     queryFn: (props) => {
       const pageParam = props.pageParam as string | undefined;
-
       return fetchPosts({ tag, sort, pageSize, pageParam });
     },
     initialPageParam: undefined,
