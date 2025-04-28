@@ -15,3 +15,20 @@ export interface Post {
   modifiedDate?: string;
   slug: string;
 }
+
+interface FileObject {
+  name: string;
+  type: 'file' | 'external';
+  file?: {
+    url: string;
+    expiry_time?: string;
+  };
+  external?: {
+    url: string;
+  };
+}
+
+export interface FilesPropertyValue {
+  type: 'files';
+  files: FileObject[];
+}

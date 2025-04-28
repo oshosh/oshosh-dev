@@ -21,6 +21,9 @@ const nextConfig: NextConfig = {
       {
         hostname: 'www.notion.so',
       },
+      {
+        hostname: 'res.cloudinary.com',
+      },
     ],
   },
   pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'mdx', 'md'],

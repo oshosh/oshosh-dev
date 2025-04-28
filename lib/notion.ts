@@ -1,4 +1,4 @@
-import type { Post, TagFilterItem } from '@/types/blog';
+import type { FilesPropertyValue, Post, TagFilterItem } from '@/types/blog';
 import { Client } from '@notionhq/client';
 import type {
   PageObjectResponse,
@@ -6,46 +6,100 @@ import type {
 } from '@notionhq/client/build/src/api-endpoints';
 import { unstable_cache } from 'next/cache';
 import { NotionToMarkdown } from 'notion-to-md';
+import { cloudinaryApi } from './cloudinary';
 
 export const notion = new Client({
   auth: process.env.NOTION_TOKEN,
 });
 const n2m = new NotionToMarkdown({ notionClient: notion });
 
-interface FileObject {
-  name: string;
-  type: 'file' | 'external';
-  file?: {
-    url: string;
-    expiry_time?: string;
-  };
-  external?: {
-    url: string;
-  };
+export const convertNotionImageToPermanent = async (
+  imageUrl: string,
+  pageId: string
+): Promise<string> => {
+  // 이미 cloudinary URL이면 변환하지 않음
+  if (imageUrl.includes('cloudinary.com')) {
+    return imageUrl;
+  }
+
+  // 만료 시간이 있는 노션 이미지를 Cloudinary로 변환
+  return await cloudinaryApi.convertToPermanentImage(imageUrl, `${pageId}_cover_image`);
+};
+
+async function getCoverImage(
+  cover: PageObjectResponse['cover'] | FilesPropertyValue,
+  pageId: string
+): Promise<string> {
+  if (!cover) return '';
+
+  let imageUrl = '';
+
+  switch (cover.type) {
+    case 'external':
+      imageUrl = cover.external.url;
+      break;
+    case 'files': {
+      imageUrl = cover.files[0]?.file?.url || '';
+      // 노션 파일 URL이면 영구 URL로 변환
+      if (imageUrl && imageUrl.includes('prod-files-secure.s3.us-west-2.amazonaws.com')) {
+        const cloudinaryUrl = await convertNotionImageToPermanent(imageUrl, pageId);
+
+        // 중요: 노션 API를 통해 커버 이미지를 external 타입으로 업데이트
+        try {
+          await notion.pages.update({
+            page_id: pageId,
+            cover: {
+              type: 'external',
+              external: {
+                url: cloudinaryUrl,
+              },
+            },
+          });
+
+          await notion.pages.update({
+            page_id: pageId,
+            properties: {
+              cover: {
+                files: [
+                  {
+                    name: `images-m-${pageId}`,
+                    type: 'external',
+                    external: {
+                      url: cloudinaryUrl,
+                    },
+                  },
+                ],
+              },
+            },
+          });
+
+          console.log('커버 이미지를 external 타입으로 업데이트 완료');
+        } catch (error) {
+          console.error('커버 이미지 업데이트 실패:', error);
+        }
+
+        imageUrl = cloudinaryUrl;
+      }
+      break;
+    }
+    default:
+      return '';
+  }
+
+  return imageUrl;
 }
 
-interface FilesPropertyValue {
-  type: 'files';
-  files: FileObject[];
-}
-
-function getPostMetadata(page: PageObjectResponse): Post {
+async function getPostMetadata(page: PageObjectResponse): Promise<Post> {
   const { properties } = page;
 
-  const getCoverImage = (cover: PageObjectResponse['cover'] | FilesPropertyValue) => {
-    if (!cover) return '';
-
-    console.log('cover 진짜 있는지 일단 확인', cover);
-    switch (cover.type) {
-      case 'external':
-        return cover.external.url;
-      case 'files': {
-        return cover.files[0]?.file?.url;
-      }
-      default:
-        return '';
-    }
-  };
+  console.log('page.cover', properties.cover);
+  // 커버 이미지 처리
+  const coverImage =
+    page.cover?.type === 'external'
+      ? page.cover.external.url
+      : properties.cover?.type === 'files'
+        ? await getCoverImage(page.properties.cover as FilesPropertyValue, page.id)
+        : '';
 
   return {
     id: page.id,
@@ -57,10 +111,7 @@ function getPostMetadata(page: PageObjectResponse): Post {
       properties.Description.type === 'rich_text'
         ? (properties.Description.rich_text[0]?.plain_text ?? '')
         : '',
-    coverImage:
-      properties.cover.type === 'files'
-        ? getCoverImage(page.properties.cover as FilesPropertyValue)
-        : '',
+    coverImage,
     tags:
       properties.Tags.type === 'multi_select'
         ? properties.Tags.multi_select.map((tag) => tag.name)
@@ -72,8 +123,8 @@ function getPostMetadata(page: PageObjectResponse): Post {
     date: properties.Date.type === 'date' ? (properties.Date.date?.start ?? '') : '',
     modifiedDate: page.last_edited_time,
     slug:
-      properties.Slug.type === 'rich_text'
-        ? (properties.Slug.rich_text[0]?.plain_text ?? page.id)
+      properties.Slug.type === 'title'
+        ? (properties.Slug.title[0]?.plain_text ?? page.id)
         : page.id,
   };
 }
@@ -103,7 +154,7 @@ export const getPostBySlug = async (
       ],
     },
   });
-
+  console.log('response???????????????????????????????????', response);
   if (!response.results[0]) {
     return {
       markdown: '',
@@ -112,11 +163,12 @@ export const getPostBySlug = async (
   }
 
   const mdBlocks = await n2m.pageToMarkdown(response.results[0].id);
+  console.log('mdBlocks???????????????????????????????????', mdBlocks);
   const { parent } = n2m.toMarkdownString(mdBlocks);
-
+  console.log('parent', parent);
   return {
     markdown: parent,
-    post: getPostMetadata(response.results[0] as PageObjectResponse),
+    post: await getPostMetadata(response.results[0] as PageObjectResponse),
   };
 
   // return getPageMetadata(response);
@@ -174,12 +226,14 @@ export const getPublishedPosts = unstable_cache(
     });
     // console.log('notion getPublishedPosts', JSON.stringify(response.results[0]));
 
-    const posts = response.results
-      .filter((page): page is PageObjectResponse => 'properties' in page)
-      .map(getPostMetadata);
+    const posts = await response.results.filter(
+      (page): page is PageObjectResponse => 'properties' in page
+    );
+
+    const mapToPost = await Promise.all(posts.map(getPostMetadata));
 
     return {
-      posts,
+      posts: mapToPost,
       hasMore: response.has_more,
       nextCursor: response.next_cursor,
     };

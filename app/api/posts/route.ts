@@ -10,6 +10,5 @@ export async function GET(request: NextRequest) {
   const pageSize = Number(searchParams.get('pageSize')) || undefined;
 
   const response = await getPublishedPosts({ tag, sort, startCursor, pageSize });
-  console.log('api/posts??????????????????????', response);
   return NextResponse.json(response);
 }
