@@ -1,5 +1,5 @@
 import { GetPublishedPostsResponse } from '@/lib/notion';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useSuspenseInfiniteQuery } from '@tanstack/react-query';
 import { fetchPosts } from '../_lib';
 
 interface GetPostsProps {
@@ -10,7 +10,7 @@ interface GetPostsProps {
 }
 
 export const useGetPostsQuery = ({ tag, sort, pageSize, initialData }: GetPostsProps) => {
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useSuspenseInfiniteQuery({
     queryKey: ['posts', tag, sort, pageSize],
     queryFn: (props) => {
       const pageParam = props.pageParam as string | undefined;
