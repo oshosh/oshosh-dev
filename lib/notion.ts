@@ -73,7 +73,7 @@ async function getCoverImage(
             },
           });
 
-          console.log('커버 이미지를 external 타입으로 업데이트 완료');
+          // console.log('커버 이미지를 external 타입으로 업데이트 완료');
         } catch (error) {
           console.error('커버 이미지 업데이트 실패:', error);
         }
@@ -92,7 +92,7 @@ async function getCoverImage(
 async function getPostMetadata(page: PageObjectResponse): Promise<Post> {
   const { properties } = page;
 
-  console.log('page.cover', properties.cover);
+  // console.log('page.cover', properties.cover);
   // 커버 이미지 처리
   const coverImage =
     page.cover?.type === 'external'
@@ -154,7 +154,7 @@ export const getPostBySlug = async (
       ],
     },
   });
-  console.log('response???????????????????????????????????', response);
+  // console.log('response???????????????????????????????????', response);
   if (!response.results[0]) {
     return {
       markdown: '',
@@ -163,9 +163,9 @@ export const getPostBySlug = async (
   }
 
   const mdBlocks = await n2m.pageToMarkdown(response.results[0].id);
-  console.log('mdBlocks???????????????????????????????????', mdBlocks);
+  // console.log('mdBlocks???????????????????????????????????', mdBlocks);
   const { parent } = n2m.toMarkdownString(mdBlocks);
-  console.log('parent', parent);
+  // console.log('parent', parent);
   return {
     markdown: parent,
     post: await getPostMetadata(response.results[0] as PageObjectResponse),
