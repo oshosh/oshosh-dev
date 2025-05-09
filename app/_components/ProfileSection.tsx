@@ -39,7 +39,7 @@ export default function ProfileSection() {
           </div>
 
           <div className="flex justify-center gap-2">
-            {socialLinks.map((item, index) => (
+            {socialLinks.map((item) => (
               <Button key={item.key} variant="ghost" className="bg-primary/10" size="icon" asChild>
                 <a href={item.href} target="_blank" rel="noopener noreferrer">
                   <item.icon className="h-4 w-4" />

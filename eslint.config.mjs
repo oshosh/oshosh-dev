@@ -1,9 +1,9 @@
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
 import { FlatCompat } from '@eslint/eslintrc';
 import js from '@eslint/js';
-import globals from 'globals';
 import eslintConfigPrettier from 'eslint-config-prettier';
+import globals from 'globals';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -22,16 +22,7 @@ const eslintConfig = [
         ...globals.node,
       },
     },
-    rules: {
-      // 여기에 추가적인 규칙을 설정할 수 있습니다
-      'no-unused-vars': [
-        'warn',
-        {
-          args: 'none', // 함수 파라미터 미사용 변수 검사 비활성화
-        },
-      ],
-      // 'no-console': 'warn',
-    },
+    rules: {},
   },
   eslintConfigPrettier,
 ];
