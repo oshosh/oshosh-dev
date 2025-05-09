@@ -38,6 +38,7 @@
 - ~**React Hook Form**: 폼 관리 및 유효성 검증~
    - **Next JS Server Action**: React Hook Form 대신 사용 (복잡하지 않기 때문에 Server Action 처리로 변경)
 - **Zod**: 스키마 검증
+- **zapier**: 노션<-> zapier CMS를 통한 지속가능한 문서 업데이트 및 삭제 갱신 기능
 
 ## 시작하기
 
