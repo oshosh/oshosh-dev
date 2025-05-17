@@ -134,6 +134,8 @@ export const getPostBySlug = async (
 ): Promise<{
   markdown: string;
   post: Post | null;
+  previousPost: Post | null;
+  nextPost: Post | null;
 }> => {
   const response = await notion.databases.query({
     database_id: process.env.NOTION_DATABASE_ID!,
@@ -154,24 +156,85 @@ export const getPostBySlug = async (
       ],
     },
   });
-  // console.log('response???????????????????????????????????', response);
+
   if (!response.results[0]) {
     return {
       markdown: '',
       post: null,
+      previousPost: null,
+      nextPost: null,
     };
   }
 
   const mdBlocks = await n2m.pageToMarkdown(response.results[0].id);
-  // console.log('mdBlocks???????????????????????????????????', mdBlocks);
   const { parent } = n2m.toMarkdownString(mdBlocks);
-  // console.log('parent', parent);
+  const currentPost = await getPostMetadata(response.results[0] as PageObjectResponse);
+
+  // 현재 slug가 숫자인지 확인
+  const currentSlugNum = parseInt(slug);
+  const isNumericSlug = !isNaN(currentSlugNum);
+
+  let previousPost: Post | null = null;
+  let nextPost: Post | null = null;
+
+  if (isNumericSlug && currentSlugNum > 1) {
+    const prevResponse = await notion.databases.query({
+      database_id: process.env.NOTION_DATABASE_ID!,
+      filter: {
+        and: [
+          {
+            property: 'Slug',
+            rich_text: {
+              equals: String(currentSlugNum - 1),
+            },
+          },
+          {
+            property: 'Status',
+            select: {
+              equals: 'Published',
+            },
+          },
+        ],
+      },
+    });
+
+    if (prevResponse.results[0]) {
+      previousPost = await getPostMetadata(prevResponse.results[0] as PageObjectResponse);
+    }
+  }
+
+  if (isNumericSlug) {
+    const nextResponse = await notion.databases.query({
+      database_id: process.env.NOTION_DATABASE_ID!,
+      filter: {
+        and: [
+          {
+            property: 'Slug',
+            rich_text: {
+              equals: String(currentSlugNum + 1),
+            },
+          },
+          {
+            property: 'Status',
+            select: {
+              equals: 'Published',
+            },
+          },
+        ],
+      },
+    });
+
+    if (nextResponse.results[0]) {
+      nextPost = await getPostMetadata(nextResponse.results[0] as PageObjectResponse);
+    }
+  }
+
   return {
     markdown: parent,
-    post: await getPostMetadata(response.results[0] as PageObjectResponse),
+    post: currentPost,
+    previousPost,
+    nextPost,
   };
-
-  // return getPageMetadata(response);
 };
 
 export interface GetPublishedPostsParams {

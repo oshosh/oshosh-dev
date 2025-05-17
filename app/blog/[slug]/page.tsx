@@ -15,6 +15,7 @@ import rehypeSanitize from 'rehype-sanitize';
 import withSlugs from 'rehype-slug';
 import remarkGfm from 'remark-gfm';
 import { BlogTableOfContents } from './_components/BlogTableOfContents';
+import { PostFooter } from './_components/PostFooter';
 
 // 동적 메타데이터 생성
 export async function generateMetadata({
@@ -69,7 +70,7 @@ interface BlogPostProps {
 
 export default async function BlogPost({ params }: BlogPostProps) {
   const { slug } = await params;
-  const { markdown, post } = await getPostBySlug(slug);
+  const { markdown, post, previousPost, nextPost } = await getPostBySlug(slug);
 
   if (!post) {
     notFound();
@@ -88,9 +89,8 @@ export default async function BlogPost({ params }: BlogPostProps) {
 
   return (
     <div className="container py-6 md:py-8 lg:py-12">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-[240px_1fr_240px] md:gap-8">
-        <aside className="hidden md:block">{/* 추후 콘텐츠 추가 */}</aside>
-        <section>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(80%,_1fr)_240px] md:gap-8">
+        <section className="w-full">
           {/* 블로그 헤더 */}
           <div className="space-y-4">
             <div className="space-y-2">
@@ -118,6 +118,7 @@ export default async function BlogPost({ params }: BlogPostProps) {
           <BlogTableOfContents toc={data?.toc || []} isMobile={true} />
 
           {/* 블로그 본문 */}
+
           <div className="prose prose-neutral dark:prose-invert prose-headings:scroll-mt-[var(--header-height)] max-w-none">
             <MDXRemote
               source={markdown}
@@ -130,10 +131,11 @@ export default async function BlogPost({ params }: BlogPostProps) {
             />
           </div>
 
-          <Separator className="my-16" />
-
-          {/* 이전/다음 포스트 네비게이션 */}
-          <GiscusComments />
+          <Separator className="my-8" />
+          <PostFooter previousPost={previousPost} nextPost={nextPost} />
+          <div className="mt-8">
+            <GiscusComments />
+          </div>
         </section>
         <aside className="relative hidden md:block">
           <BlogTableOfContents toc={data?.toc || []} />
