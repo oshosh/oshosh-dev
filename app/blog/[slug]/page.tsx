@@ -61,7 +61,7 @@ export const generateStaticParams = async () => {
   }));
 };
 
-export const revalidate = 60;
+// export const revalidate = 60;
 
 interface BlogPostProps {
   params: Promise<{ slug: string }>;
