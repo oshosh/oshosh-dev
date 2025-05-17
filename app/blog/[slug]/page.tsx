@@ -1,5 +1,6 @@
 import GiscusComments from '@/components/GiscusComments';
 import { Badge } from '@/components/ui/badge';
+import { ScrollProgressBar } from '@/components/ui/scroll-progress-bar';
 import { Separator } from '@/components/ui/separator';
 import { formatDate } from '@/lib/date';
 import { getPostBySlug, getPublishedPosts } from '@/lib/notion';
@@ -88,59 +89,66 @@ export default async function BlogPost({ params }: BlogPostProps) {
   });
 
   return (
-    <div className="container py-6 md:py-8 lg:py-12">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(80%,_1fr)_240px] md:gap-8">
-        <section className="w-full">
-          {/* 블로그 헤더 */}
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex gap-2">
-                {post.tags?.map((tag) => <Badge key={tag}>{tag}</Badge>)}
-              </div>
-              <h1 className="text-3xl font-bold md:text-4xl">{post.title}</h1>
-            </div>
-
-            {/* 메타 정보 */}
-            <div className="text-muted-foreground flex gap-4 text-sm">
-              <div className="flex items-center gap-1">
-                <User className="h-4 w-4" />
-                <span>{post.author}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <CalendarDays className="h-4 w-4" />
-                <span>{formatDate(post.date)}</span>
-              </div>
-            </div>
-          </div>
-
-          <Separator className="my-8" />
-
-          <BlogTableOfContents toc={data?.toc || []} isMobile={true} />
-
-          {/* 블로그 본문 */}
-
-          <div className="prose prose-neutral dark:prose-invert prose-headings:scroll-mt-[var(--header-height)] max-w-none">
-            <MDXRemote
-              source={markdown}
-              options={{
-                mdxOptions: {
-                  remarkPlugins: [remarkGfm],
-                  rehypePlugins: [withSlugs, rehypeSanitize, rehypePrettyCode],
-                },
-              }}
-            />
-          </div>
-
-          <Separator className="my-8" />
-          <PostFooter previousPost={previousPost} nextPost={nextPost} />
-          <div className="mt-8">
-            <GiscusComments />
-          </div>
-        </section>
-        <aside className="relative hidden md:block">
-          <BlogTableOfContents toc={data?.toc || []} />
-        </aside>
+    <>
+      <div className="fixed top-0 right-0 left-0 z-50 h-1">
+        <ScrollProgressBar />
       </div>
-    </div>
+      <main className="container py-6 md:py-8 lg:py-12">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(80%,_1fr)_240px] md:gap-8">
+          <article className="w-full">
+            {/* 블로그 헤더 */}
+            <header className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  {post.tags?.map((tag) => <Badge key={tag}>{tag}</Badge>)}
+                </div>
+                <h1 className="text-3xl font-bold md:text-4xl">{post.title}</h1>
+              </div>
+
+              {/* 메타 정보 */}
+              <div className="text-muted-foreground flex gap-4 text-sm">
+                <div className="flex items-center gap-1">
+                  <User className="h-4 w-4" />
+                  <span>{post.author}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <CalendarDays className="h-4 w-4" />
+                  <span>{formatDate(post.date)}</span>
+                </div>
+              </div>
+            </header>
+
+            <Separator className="my-8" />
+
+            <nav className="md:hidden">
+              <BlogTableOfContents toc={data?.toc || []} isMobile={true} />
+            </nav>
+
+            {/* 블로그 본문 */}
+
+            <section className="prose prose-neutral dark:prose-invert prose-headings:scroll-mt-[var(--header-height)] max-w-none">
+              <MDXRemote
+                source={markdown}
+                options={{
+                  mdxOptions: {
+                    remarkPlugins: [remarkGfm],
+                    rehypePlugins: [withSlugs, rehypeSanitize, rehypePrettyCode],
+                  },
+                }}
+              />
+            </section>
+
+            <Separator className="my-8" />
+            <PostFooter previousPost={previousPost} nextPost={nextPost} />
+            <div className="mt-8">
+              <GiscusComments />
+            </div>
+          </article>
+          <nav className="relative hidden md:block">
+            <BlogTableOfContents toc={data?.toc || []} />
+          </nav>
+        </div>
+      </main>
+    </>
   );
 }
