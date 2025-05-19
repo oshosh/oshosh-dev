@@ -10,10 +10,10 @@ import {
 } from '@/components/ui/dialog';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function PhotoPage() {
+export default function SearchPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const id = searchParams.get('id') ?? '';
+  const id = searchParams.get('id') ?? '1';
   const handleOpenChange = (open: boolean) => {
     if (!open) router.back();
   };
@@ -22,7 +22,7 @@ export default function PhotoPage() {
     <Dialog defaultOpen onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Photo Card Dialog</DialogTitle>
+          <DialogTitle>Photo Card Dialog~~~~~~~~~~~~~~</DialogTitle>
           <DialogDescription>Description</DialogDescription>
         </DialogHeader>
         <div className="flex justify-center p-8">

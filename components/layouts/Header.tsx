@@ -1,6 +1,7 @@
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
-import Nav from './Nav';
 import NavTitle from '../features/common/NavTitle';
+import { Search } from '../features/common/Search';
+import Nav from './Nav';
 
 export default function Header() {
   return (
@@ -10,6 +11,7 @@ export default function Header() {
           <NavTitle />
 
           <div className="flex items-center justify-end gap-4">
+            <Search />
             <Nav />
             <ThemeToggle />
           </div>

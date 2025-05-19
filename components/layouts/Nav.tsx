@@ -1,12 +1,12 @@
 'use client';
-import Link from 'next/link';
-import { useSelectedLayoutSegment } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Typography } from '@/components/ui/typography';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Menu } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { useSelectedLayoutSegment } from 'next/navigation';
 import { useState } from 'react';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 export default function Nav() {
   const isMobile = useIsMobile();

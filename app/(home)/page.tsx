@@ -1,13 +1,13 @@
-import ProfileSection from '@/app/_components/ProfileSection';
 import ContactSection from '@/app/_components/ContactSection';
-import { getTags, getPublishedPosts } from '@/lib/notion';
 import HeaderSection from '@/app/_components/HeaderSection';
-import PostListSuspense from '@/components/features/blog/PostListSuspense';
-import { Suspense } from 'react';
+import ProfileSection from '@/app/_components/ProfileSection';
 import TagSectionClient from '@/app/_components/TagSection.client';
-import PostListSkeleton from '@/components/features/blog/PostListSkeleton';
 import TagSectionSkeleton from '@/app/_components/TagSectionSkeleton';
+import PostListSkeleton from '@/components/features/blog/PostListSkeleton';
+import PostListSuspense from '@/components/features/blog/PostListSuspense';
+import { getPublishedPosts, getTags } from '@/lib/notion';
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 
 interface HomeProps {
   searchParams: Promise<{ tag?: string; sort?: string }>;
