@@ -8,12 +8,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 export default function SearchPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const id = searchParams.get('id') ?? '1';
   const handleOpenChange = (open: boolean) => {
     if (!open) router.back();
   };
@@ -26,7 +24,7 @@ export default function SearchPage() {
           <DialogDescription>Description</DialogDescription>
         </DialogHeader>
         <div className="flex justify-center p-8">
-          <PhotoCard id={id} modal={true} />
+          <PhotoCard id={'1'} modal={true} />
         </div>
       </DialogContent>
     </Dialog>
