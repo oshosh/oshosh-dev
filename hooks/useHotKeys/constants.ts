@@ -3,7 +3,7 @@ import { ChooseModifiersType, KeyName, ModifierName, ModifiersUnionType } from '
 /**
  * 현재 지원되는 키보드 key name을 readonly로 매핑합니다.
  */
-export const keyNameCodeMapping: Readonly<Record<KeyName, number>> = Object.freeze({
+export const keyNameCodeMapping: Readonly<Record<KeyName, number>> = {
   backspace: 8,
   tab: 9,
   clear: 12,
@@ -53,12 +53,12 @@ export const keyNameCodeMapping: Readonly<Record<KeyName, number>> = Object.free
   '[': 219,
   ']': 221,
   '\\': 220,
-});
+};
 
 /**
  * 현재 지원되는 수정자 키를 전부 readOnly로 매핑 합니다.
  */
-export const modifierNameKeyCodeMapping: Readonly<Record<ModifierName, number>> = Object.freeze({
+export const modifierNameKeyCodeMapping: Readonly<Record<ModifierName, number>> = {
   // shiftKey
   '⇧': 16,
   shift: 16,
@@ -74,7 +74,7 @@ export const modifierNameKeyCodeMapping: Readonly<Record<ModifierName, number>> 
   '⌘': 91,
   cmd: 91,
   command: 91,
-});
+};
 
 /**
  * 현재 조합 할 수 있는 수정자 키를 상수로 선언합니다.
