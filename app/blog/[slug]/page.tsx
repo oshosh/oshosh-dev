@@ -29,7 +29,8 @@ export async function generateMetadata({
 
   if (!post) {
     return {
-      title: '포스트를 찾을 수 없습니다!!!aaaaaaaaaaaaaaaaaaa',
+      title:
+        '포스트를 찾을 수 없습니다!!!aaaaaavvvvvvvvvvvvvVVVVVVVVVVVvvvvvvvvvvvvvvvvvaaaaaaaaaaaaa',
       description: '요청하신 블로그 포스트를 찾을 수 없습니다.',
     };
   }
