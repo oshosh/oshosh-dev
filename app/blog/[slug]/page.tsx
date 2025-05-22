@@ -57,7 +57,6 @@ export async function generateMetadata({
     },
   };
 }
-//// 2222222
 
 export const generateStaticParams = async () => {
   const { posts } = await getPublishedPosts();
