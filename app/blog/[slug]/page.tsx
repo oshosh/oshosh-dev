@@ -34,10 +34,6 @@ export async function generateMetadata({
     };
   }
 
-  // 1 111111111111
-  // 222222222222
-  // 333333333333
-
   return {
     title: post.title,
     description: post.description || `${post.title} - OSH 블로그`,
