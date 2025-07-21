@@ -23,6 +23,58 @@ class CloudinaryApi {
     });
   }
 
+  private async convertNotionImageToPermanent(imageUrl: string, pageId: string): Promise<string> {
+    // 이미 cloudinary URL이면 변환하지 않음
+    if (imageUrl.includes('cloudinary.com')) {
+      return imageUrl;
+    }
+
+    // 만료 시간이 있는 노션 이미지를 Cloudinary로 변환
+    return await cloudinaryApi.convertToPermanentImage(imageUrl, `${pageId}_cover_image`);
+  }
+
+  async convertMarkdownImages(markdown: string, pageId: string): Promise<string> {
+    // 마크다운 이미지 패턴: ![alt](url) 또는 ![alt](url "title")
+    const imageRegex = /!\[([^\]]*)\]\(([^)]+)(?:\s+"([^"]+)")?\)/g;
+
+    let convertedMarkdown = markdown;
+    const imageMatches = [...markdown.matchAll(imageRegex)];
+
+    for (const match of imageMatches) {
+      const [fullMatch, alt, imageUrl, title] = match;
+
+      // 노션 이미지 URL인지 확인
+      if (
+        imageUrl.includes('prod-files-secure.s3.us-west-2.amazonaws.com') ||
+        imageUrl.includes('www.notion.so')
+      ) {
+        try {
+          // 이미 cloudinary URL이면 변환하지 않음
+          if (imageUrl.includes('cloudinary.com')) {
+            continue;
+          }
+
+          // 영구 이미지로 변환
+          const permanentUrl = await this.convertNotionImageToPermanent(
+            imageUrl,
+            `${pageId}_content_image`
+          );
+
+          // 마크다운에서 URL 교체
+          const newImageMarkdown = title
+            ? `![${alt}](${permanentUrl} "${title}")`
+            : `![${alt}](${permanentUrl})`;
+
+          convertedMarkdown = convertedMarkdown.replace(fullMatch, newImageMarkdown);
+        } catch (error) {
+          console.error('이미지 변환 실패:', error);
+        }
+      }
+    }
+
+    return convertedMarkdown;
+  }
+
   // 호스팅된 이미지를 다운로드하여 base64 문자열로 변환
   private downloadImageToBase64(url: string): Promise<string> {
     return new Promise((resolve, reject) => {

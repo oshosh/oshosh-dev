@@ -33,9 +33,6 @@ export async function generateMetadata({
       description: '요청하신 블로그 포스트를 찾을 수 없습니다.',
     };
   }
-  //5555555555555555555555555555555555555
-  /// 11111
-  /// 33333333333
 
   return {
     title: post.title,

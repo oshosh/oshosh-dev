@@ -13,19 +13,6 @@ export const notion = new Client({
 });
 const n2m = new NotionToMarkdown({ notionClient: notion });
 
-export const convertNotionImageToPermanent = async (
-  imageUrl: string,
-  pageId: string
-): Promise<string> => {
-  // 이미 cloudinary URL이면 변환하지 않음
-  if (imageUrl.includes('cloudinary.com')) {
-    return imageUrl;
-  }
-
-  // 만료 시간이 있는 노션 이미지를 Cloudinary로 변환
-  return await cloudinaryApi.convertToPermanentImage(imageUrl, `${pageId}_cover_image`);
-};
-
 async function getCoverImage(
   cover: PageObjectResponse['cover'] | FilesPropertyValue,
   pageId: string
@@ -42,7 +29,7 @@ async function getCoverImage(
       imageUrl = cover.files[0]?.file?.url || '';
       // 노션 파일 URL이면 영구 URL로 변환
       if (imageUrl && imageUrl.includes('prod-files-secure.s3.us-west-2.amazonaws.com')) {
-        const cloudinaryUrl = await convertNotionImageToPermanent(imageUrl, pageId);
+        const cloudinaryUrl = await cloudinaryApi.convertToPermanentImage(imageUrl, pageId);
 
         // 중요: 노션 API를 통해 커버 이미지를 external 타입으로 업데이트
         try {
@@ -168,6 +155,11 @@ export const getPostBySlug = async (
 
   const mdBlocks = await n2m.pageToMarkdown(response.results[0].id);
   const { parent } = n2m.toMarkdownString(mdBlocks);
+
+  const convertedMarkdown = await cloudinaryApi.convertMarkdownImages(
+    parent,
+    response.results[0].id
+  );
   const currentPost = await getPostMetadata(response.results[0] as PageObjectResponse);
 
   // 현재 slug가 숫자인지 확인
@@ -230,7 +222,7 @@ export const getPostBySlug = async (
   }
 
   return {
-    markdown: parent,
+    markdown: convertedMarkdown,
     post: currentPost,
     previousPost,
     nextPost,
