@@ -143,7 +143,7 @@ export const getPostBySlug = async (
       and: [
         {
           property: 'Slug',
-          rich_text: {
+          title: {
             equals: slug,
           },
         },
@@ -184,7 +184,7 @@ export const getPostBySlug = async (
         and: [
           {
             property: 'Slug',
-            rich_text: {
+            title: {
               equals: String(currentSlugNum - 1),
             },
           },
@@ -210,7 +210,7 @@ export const getPostBySlug = async (
         and: [
           {
             property: 'Slug',
-            rich_text: {
+            title: {
               equals: String(currentSlugNum + 1),
             },
           },
