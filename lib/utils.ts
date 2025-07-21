@@ -25,3 +25,25 @@ export function extractIds(items: TocEntry[]): string[] {
   items.forEach(traverse);
   return ids;
 }
+
+/**
+ * MDX 표현식 오류를 일으킬 수 있는 패턴들을 정리
+ * @see https://github.com/micromark/micromark-extension-mdx-expression/tree/main/packages/micromark-extension-mdx-expression#could-not-parse-expression-with-acorn
+ */
+export function sanitizeMarkdown(markdown: string): string {
+  let sanitized = markdown;
+
+  // 잘못된 중괄호 패턴 정리 (예: { } 또는 {text} 등)
+  sanitized = sanitized.replace(/\{([^}]*)\}/g, (match, content) => {
+    // 유효한 MDX 표현식이 아닌 경우 제거
+    if (!content.trim() || content.includes(' ') || content.length > 50) {
+      return '';
+    }
+    return match;
+  });
+
+  sanitized = sanitized.replace(/\{\s*\}/g, '');
+  sanitized = sanitized.replace(/\n\s*\n\s*\n/g, '\n\n');
+
+  return sanitized;
+}

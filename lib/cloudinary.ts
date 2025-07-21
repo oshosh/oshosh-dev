@@ -30,7 +30,7 @@ class CloudinaryApi {
     }
 
     // 만료 시간이 있는 노션 이미지를 Cloudinary로 변환
-    return await cloudinaryApi.convertToPermanentImage(imageUrl, `${pageId}_cover_image`);
+    return await this.convertToPermanentImage(imageUrl, `${pageId}_cover_image`);
   }
 
   async convertMarkdownImages(markdown: string, pageId: string): Promise<string> {

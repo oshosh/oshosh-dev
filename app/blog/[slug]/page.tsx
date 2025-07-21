@@ -15,8 +15,7 @@ import rehypePrettyCode from 'rehype-pretty-code';
 import rehypeSanitize from 'rehype-sanitize';
 import withSlugs from 'rehype-slug';
 import remarkGfm from 'remark-gfm';
-import { BlogTableOfContents } from './_components/BlogTableOfContents';
-import { PostFooter } from './_components/PostFooter';
+import { BlogTableOfContents, PostFooter } from './_components';
 
 // 동적 메타데이터 생성
 export async function generateMetadata({

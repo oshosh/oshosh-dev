@@ -7,6 +7,7 @@ import type {
 import { unstable_cache } from 'next/cache';
 import { NotionToMarkdown } from 'notion-to-md';
 import { cloudinaryApi } from './cloudinary';
+import { sanitizeMarkdown } from './utils';
 
 export const notion = new Client({
   auth: process.env.NOTION_TOKEN,
@@ -220,9 +221,10 @@ export const getPostBySlug = async (
       nextPost = await getPostMetadata(nextResponse.results[0] as PageObjectResponse);
     }
   }
+  const sanitizedMarkdown = sanitizeMarkdown(convertedMarkdown);
 
   return {
-    markdown: convertedMarkdown,
+    markdown: sanitizedMarkdown,
     post: currentPost,
     previousPost,
     nextPost,
