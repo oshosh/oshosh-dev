@@ -87,7 +87,7 @@ export default async function BlogPost({ params }: BlogPostProps) {
       // [withTocExport, { name: 'toc' }],
     ],
   });
-  /// 3333
+
   return (
     <>
       <div className="fixed top-0 right-0 left-0 z-50 h-1">
@@ -100,7 +100,11 @@ export default async function BlogPost({ params }: BlogPostProps) {
             <header className="space-y-4">
               <div className="space-y-2">
                 <div className="flex gap-2">
-                  {post.tags?.map((tag) => <Badge key={tag}>{tag}</Badge>)}
+                  {post.tags?.map((tag) => (
+                    <Badge variant="secondary" key={tag}>
+                      {tag}
+                    </Badge>
+                  ))}
                 </div>
                 <h1 className="text-3xl font-bold md:text-4xl">{post.title}</h1>
               </div>
