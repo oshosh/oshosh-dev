@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
   try {
     // 모든 관련 캐시 무효화
     revalidateTag('posts');
+    revalidateTag('post-detail');
     revalidatePath('/', 'page'); // 홈페이지 캐시 무효화
     revalidatePath('/blog', 'page');
     revalidatePath(`/blog/${pageId}`, 'page');
@@ -35,6 +36,7 @@ export async function POST(request: NextRequest) {
   try {
     // 모든 관련 캐시 무효화
     revalidateTag('posts');
+    revalidateTag('post-detail');
     revalidatePath('/', 'page'); // 홈페이지 캐시 무효화
     revalidatePath('/blog', 'page');
     revalidatePath(`/blog/${pageId}`, 'page');

@@ -117,119 +117,125 @@ async function getPostMetadata(page: PageObjectResponse): Promise<Post> {
   };
 }
 
-export const getPostBySlug = async (
-  slug: string
-): Promise<{
-  markdown: string;
-  post: Post | null;
-  previousPost: Post | null;
-  nextPost: Post | null;
-}> => {
-  const response = await notion.databases.query({
-    database_id: process.env.NOTION_DATABASE_ID!,
-    filter: {
-      and: [
-        {
-          property: 'Slug',
-          title: {
-            equals: slug,
+export const getPostBySlug = unstable_cache(
+  async (
+    slug: string
+  ): Promise<{
+    markdown: string;
+    post: Post | null;
+    previousPost: Post | null;
+    nextPost: Post | null;
+  }> => {
+    const response = await notion.databases.query({
+      database_id: process.env.NOTION_DATABASE_ID!,
+      filter: {
+        and: [
+          {
+            property: 'Slug',
+            title: {
+              equals: slug,
+            },
           },
-        },
-        {
-          property: 'Status',
-          select: {
-            equals: 'Published',
+          {
+            property: 'Status',
+            select: {
+              equals: 'Published',
+            },
           },
-        },
-      ],
-    },
-  });
+        ],
+      },
+    });
 
-  if (!response.results[0]) {
+    if (!response.results[0]) {
+      return {
+        markdown: '',
+        post: null,
+        previousPost: null,
+        nextPost: null,
+      };
+    }
+
+    const mdBlocks = await n2m.pageToMarkdown(response.results[0].id);
+    const { parent } = n2m.toMarkdownString(mdBlocks);
+
+    const convertedMarkdown = await cloudinaryApi.convertMarkdownImages(
+      parent,
+      response.results[0].id
+    );
+    const currentPost = await getPostMetadata(response.results[0] as PageObjectResponse);
+
+    // 현재 slug가 숫자인지 확인
+    const currentSlugNum = parseInt(slug);
+    const isNumericSlug = !isNaN(currentSlugNum);
+
+    let previousPost: Post | null = null;
+    let nextPost: Post | null = null;
+
+    if (isNumericSlug && currentSlugNum > 1) {
+      const prevResponse = await notion.databases.query({
+        database_id: process.env.NOTION_DATABASE_ID!,
+        filter: {
+          and: [
+            {
+              property: 'Slug',
+              title: {
+                equals: String(currentSlugNum - 1),
+              },
+            },
+            {
+              property: 'Status',
+              select: {
+                equals: 'Published',
+              },
+            },
+          ],
+        },
+      });
+
+      if (prevResponse.results[0]) {
+        previousPost = await getPostMetadata(prevResponse.results[0] as PageObjectResponse);
+      }
+    }
+
+    if (isNumericSlug) {
+      const nextResponse = await notion.databases.query({
+        database_id: process.env.NOTION_DATABASE_ID!,
+        filter: {
+          and: [
+            {
+              property: 'Slug',
+              title: {
+                equals: String(currentSlugNum + 1),
+              },
+            },
+            {
+              property: 'Status',
+              select: {
+                equals: 'Published',
+              },
+            },
+          ],
+        },
+      });
+
+      if (nextResponse.results[0]) {
+        nextPost = await getPostMetadata(nextResponse.results[0] as PageObjectResponse);
+      }
+    }
+    const sanitizedMarkdown = sanitizeMarkdown(convertedMarkdown);
+
     return {
-      markdown: '',
-      post: null,
-      previousPost: null,
-      nextPost: null,
+      markdown: sanitizedMarkdown,
+      post: currentPost,
+      previousPost,
+      nextPost,
     };
+  },
+  undefined,
+  {
+    tags: ['posts', 'post-detail'],
   }
-
-  const mdBlocks = await n2m.pageToMarkdown(response.results[0].id);
-  const { parent } = n2m.toMarkdownString(mdBlocks);
-
-  const convertedMarkdown = await cloudinaryApi.convertMarkdownImages(
-    parent,
-    response.results[0].id
-  );
-  const currentPost = await getPostMetadata(response.results[0] as PageObjectResponse);
-
-  // 현재 slug가 숫자인지 확인
-  const currentSlugNum = parseInt(slug);
-  const isNumericSlug = !isNaN(currentSlugNum);
-
-  let previousPost: Post | null = null;
-  let nextPost: Post | null = null;
-
-  if (isNumericSlug && currentSlugNum > 1) {
-    const prevResponse = await notion.databases.query({
-      database_id: process.env.NOTION_DATABASE_ID!,
-      filter: {
-        and: [
-          {
-            property: 'Slug',
-            title: {
-              equals: String(currentSlugNum - 1),
-            },
-          },
-          {
-            property: 'Status',
-            select: {
-              equals: 'Published',
-            },
-          },
-        ],
-      },
-    });
-
-    if (prevResponse.results[0]) {
-      previousPost = await getPostMetadata(prevResponse.results[0] as PageObjectResponse);
-    }
-  }
-
-  if (isNumericSlug) {
-    const nextResponse = await notion.databases.query({
-      database_id: process.env.NOTION_DATABASE_ID!,
-      filter: {
-        and: [
-          {
-            property: 'Slug',
-            title: {
-              equals: String(currentSlugNum + 1),
-            },
-          },
-          {
-            property: 'Status',
-            select: {
-              equals: 'Published',
-            },
-          },
-        ],
-      },
-    });
-
-    if (nextResponse.results[0]) {
-      nextPost = await getPostMetadata(nextResponse.results[0] as PageObjectResponse);
-    }
-  }
-  const sanitizedMarkdown = sanitizeMarkdown(convertedMarkdown);
-
-  return {
-    markdown: sanitizedMarkdown,
-    post: currentPost,
-    previousPost,
-    nextPost,
-  };
-};
+);
 
 export interface GetPublishedPostsParams {
   tag?: string;
