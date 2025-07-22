@@ -33,8 +33,18 @@ class CloudinaryApi {
     return await this.convertToPermanentImage(imageUrl, `${pageId}_cover_image`);
   }
 
+  // URL에서 간단한 해시 생성
+  private generateHash(str: string): string {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash; // 32비트 정수로 변환
+    }
+    return Math.abs(hash).toString(36);
+  }
+
   async convertMarkdownImages(markdown: string, pageId: string): Promise<string> {
-    // 마크다운 이미지 패턴: ![alt](url) 또는 ![alt](url "title")
     const imageRegex = /!\[([^\]]*)\]\(([^)]+)(?:\s+"([^"]+)")?\)/g;
 
     let convertedMarkdown = markdown;
@@ -43,24 +53,24 @@ class CloudinaryApi {
     for (const match of imageMatches) {
       const [fullMatch, alt, imageUrl, title] = match;
 
+      // 이미 Cloudinary URL이면 건너뛰기 (가장 빠른 방법)
+      if (imageUrl.includes('cloudinary.com')) {
+        continue;
+      }
+
       // 노션 이미지 URL인지 확인
       if (
         imageUrl.includes('prod-files-secure.s3.us-west-2.amazonaws.com') ||
         imageUrl.includes('www.notion.so')
       ) {
         try {
-          // 이미 cloudinary URL이면 변환하지 않음
-          if (imageUrl.includes('cloudinary.com')) {
-            continue;
-          }
+          // URL 해시로 일관된 public_id 생성
+          const urlHash = this.generateHash(imageUrl);
+          const publicId = `${pageId}_content_${urlHash}`;
 
-          // 영구 이미지로 변환
-          const permanentUrl = await this.convertNotionImageToPermanent(
-            imageUrl,
-            `${pageId}_content_image`
-          );
+          // 바로 업로드 (API 확인 없이)
+          const permanentUrl = await this.convertNotionImageToPermanent(imageUrl, publicId);
 
-          // 마크다운에서 URL 교체
           const newImageMarkdown = title
             ? `![${alt}](${permanentUrl} "${title}")`
             : `![${alt}](${permanentUrl})`;
