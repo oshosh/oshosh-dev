@@ -3,8 +3,19 @@ import type { MDXComponents } from 'mdx/types';
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
     ...components,
-    // 코드 강조 스타일링
-    code: ({ children, ...props }) => {
+    // 코드 강조 스타일링 (인라인 코드와 코드 블록 구분)
+    code: ({ children, className, ...props }) => {
+      const isCodeBlock = className?.includes('language-') || props['data-language'];
+
+      if (isCodeBlock) {
+        return (
+          <code {...props} className={className}>
+            {children}
+          </code>
+        );
+      }
+
+      // 인라인 코드 (백틱으로 감싸진 텍스트)
       return (
         <code
           {...props}
