@@ -9,13 +9,11 @@ import withToc from '@stefanprobst/rehype-extract-toc';
 import withTocExport from '@stefanprobst/rehype-extract-toc/mdx';
 import { CalendarDays, User } from 'lucide-react';
 import { Metadata } from 'next';
-import { MDXRemote } from 'next-mdx-remote/rsc';
 import { notFound } from 'next/navigation';
-import rehypePrettyCode from 'rehype-pretty-code';
 import rehypeSanitize from 'rehype-sanitize';
 import withSlugs from 'rehype-slug';
-import remarkGfm from 'remark-gfm';
 import { BlogTableOfContents, PostFooter } from './_components';
+import MDXContent from './_components/MDXContent';
 
 // 동적 메타데이터 생성
 export async function generateMetadata({
@@ -128,25 +126,17 @@ export default async function BlogPost({ params }: BlogPostProps) {
             </nav>
 
             {/* 블로그 본문 */}
-
             <section className="prose prose-neutral dark:prose-invert prose-headings:scroll-mt-[var(--header-height)] max-w-none">
-              <MDXRemote
-                source={markdown}
-                options={{
-                  mdxOptions: {
-                    remarkPlugins: [remarkGfm],
-                    rehypePlugins: [withSlugs, rehypeSanitize, rehypePrettyCode],
-                  },
-                }}
-              />
+              <MDXContent source={markdown} />
             </section>
-
             <Separator className="my-8" />
             <PostFooter previousPost={previousPost} nextPost={nextPost} />
+            {/* 댓글 */}
             <div className="mt-8">
               <GiscusComments />
             </div>
           </article>
+          {/* 블로그 목차 */}
           <nav className="relative hidden md:block">
             <BlogTableOfContents toc={data?.toc || []} />
           </nav>
