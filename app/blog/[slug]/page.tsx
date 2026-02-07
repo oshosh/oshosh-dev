@@ -7,6 +7,7 @@ import { getPostBySlug, getPublishedPosts } from '@/lib/notion';
 import { compile } from '@mdx-js/mdx';
 import withToc from '@stefanprobst/rehype-extract-toc';
 import withTocExport from '@stefanprobst/rehype-extract-toc/mdx';
+import type { TocEntry } from '@stefanprobst/rehype-extract-toc';
 import { CalendarDays, User } from 'lucide-react';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -74,16 +75,20 @@ export default async function BlogPost({ params }: BlogPostProps) {
     notFound();
   }
 
-  const { data } = await compile(markdown, {
-    rehypePlugins: [
-      withSlugs,
-      rehypeSanitize,
-      withToc,
-      withTocExport,
-      /** Optionally, provide a custom name for the export. */
-      // [withTocExport, { name: 'toc' }],
-    ],
-  });
+  let toc: TocEntry[] = [];
+  try {
+    const { data } = await compile(markdown, {
+      rehypePlugins: [
+        withSlugs,
+        rehypeSanitize,
+        withToc,
+        withTocExport,
+      ],
+    });
+    toc = data?.toc || [];
+  } catch (error) {
+    console.error(`[MDX compile] TOC 추출 실패 (slug: ${slug}):`, error);
+  }
 
   return (
     <>
@@ -122,7 +127,7 @@ export default async function BlogPost({ params }: BlogPostProps) {
             <Separator className="my-8" />
 
             <nav className="md:hidden">
-              <BlogTableOfContents toc={data?.toc || []} isMobile={true} />
+              <BlogTableOfContents toc={toc} isMobile={true} />
             </nav>
 
             {/* 블로그 본문 */}
@@ -138,7 +143,7 @@ export default async function BlogPost({ params }: BlogPostProps) {
           </article>
           {/* 블로그 목차 */}
           <nav className="relative hidden md:block">
-            <BlogTableOfContents toc={data?.toc || []} />
+            <BlogTableOfContents toc={toc} />
           </nav>
         </div>
       </main>

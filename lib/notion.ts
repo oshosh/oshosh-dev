@@ -30,10 +30,10 @@ async function getCoverImage(
       imageUrl = cover.files[0]?.file?.url || '';
       // 노션 파일 URL이면 영구 URL로 변환
       if (imageUrl && imageUrl.includes('prod-files-secure.s3.us-west-2.amazonaws.com')) {
-        const cloudinaryUrl = await cloudinaryApi.convertToPermanentImage(imageUrl, pageId);
-
-        // 중요: 노션 API를 통해 커버 이미지를 external 타입으로 업데이트
         try {
+          const cloudinaryUrl = await cloudinaryApi.convertToPermanentImage(imageUrl, pageId);
+
+          // 중요: 노션 API를 통해 커버 이미지를 external 타입으로 업데이트
           await notion.pages.update({
             page_id: pageId,
             cover: {
@@ -61,12 +61,11 @@ async function getCoverImage(
             },
           });
 
-          // console.log('커버 이미지를 external 타입으로 업데이트 완료');
+          imageUrl = cloudinaryUrl;
         } catch (error) {
-          console.error('커버 이미지 업데이트 실패:', error);
+          console.error('커버 이미지 변환/업데이트 실패:', error);
+          // 변환 실패 시 원본 Notion URL 유지
         }
-
-        imageUrl = cloudinaryUrl;
       }
       break;
     }
@@ -158,10 +157,15 @@ export const getPostBySlug = unstable_cache(
     const mdBlocks = await n2m.pageToMarkdown(response.results[0].id);
     const { parent } = n2m.toMarkdownString(mdBlocks);
 
-    const convertedMarkdown = await cloudinaryApi.convertMarkdownImages(
-      parent,
-      response.results[0].id
-    );
+    let convertedMarkdown = parent;
+    try {
+      convertedMarkdown = await cloudinaryApi.convertMarkdownImages(
+        parent,
+        response.results[0].id
+      );
+    } catch (error) {
+      console.error('[getPostBySlug] 마크다운 이미지 변환 실패:', error);
+    }
     const currentPost = await getPostMetadata(response.results[0] as PageObjectResponse);
 
     // 현재 slug가 숫자인지 확인
