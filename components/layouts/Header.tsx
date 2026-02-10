@@ -10,7 +10,7 @@ export default function Header() {
         <div className="flex w-full items-center justify-between">
           <NavTitle />
 
-          <div className="flex items-center justify-end gap-4">
+          <div className="flex items-center justify-end gap-2 md:gap-4">
             <Search />
             <Nav />
             <ThemeToggle />
