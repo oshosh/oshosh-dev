@@ -1,8 +1,11 @@
 import type { MDXComponents } from 'mdx/types';
+import { ZoomImage } from './components/features/blog/ZoomImage';
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
     ...components,
+    // MDX에서 `<img>` 나 `![alt](src)` 가 들어오면 ZoomImage로 렌더
+    img: (props) => <ZoomImage {...props} />,
     // 코드 강조 스타일링 (인라인 코드와 코드 블록 구분)
     code: ({ children, className, ...props }) => {
       const isCodeBlock = className?.includes('language-') || props['data-language'];
